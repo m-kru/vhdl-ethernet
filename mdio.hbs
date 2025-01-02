@@ -1,0 +1,22 @@
+namespace eval vhdl::mdio {
+  proc src {} {
+    hbs::SetLib "mdio"
+    hbs::AddFile mdio.vhd
+  }
+
+  proc _tb {top} {
+    hbs::SetTool "nvc"
+    hbs::AddPostElabCb hbs::SetArgsPrefix "--messages=compact"
+    hbs::SetTop $top
+    src
+    hbs::SetLib ""
+  }
+
+  proc tb-read {} {
+    _tb "tb_read"
+    hbs::AddFile tb/tb-read.vhd
+    hbs::Run
+  }
+
+  hbs::Register
+}

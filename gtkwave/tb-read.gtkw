@@ -1,0 +1,75 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Thu Jan  2 19:21:36 2025
+[*]
+[dumpfile] "/home/mkru/workspace/vhdl/vhdl-mdio/build/vhdl/mdio/tb-read/tb_read.fst"
+[dumpfile_mtime] "Thu Jan  2 19:21:31 2025"
+[dumpfile_size] 811
+[savefile] "/home/mkru/workspace/vhdl/vhdl-mdio/gtkwave/tb-read.gtkw"
+[timestart] 0
+[size] 2412 1261
+[pos] 120 176
+*-26.324463 3910000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[markername] AA
+[markername] BB
+[markername] CC
+[markername] DD
+[markername] EE
+[markername] FF
+[markername] GG
+[markername] HH
+[markername] II
+[markername] JJ
+[markername] KK
+[markername] LL
+[markername] MM
+[markername] NN
+[markername] OO
+[markername] PP
+[markername] QQ
+[markername] RR
+[markername] SS
+[markername] TT
+[markername] UU
+[markername] VV
+[markername] WW
+[markername] XX
+[markername] YY
+[markername] ZZ
+[treeopen] tb_read.
+[sst_width] 276
+[signals_width] 333
+[sst_expanded] 1
+[sst_vpaned_height] 381
+@28
+tb_read.clk
+@200
+-Input Signals
+@28
+tb_read.start
+tb_read.di
+tb_read.op_code[1:0]
+@22
+tb_read.port_addr[4:0]
+tb_read.device_addr[4:0]
+tb_read.wdata[15:0]
+@200
+-Manager
+@24
+tb_read.mgr.preamble_length
+@28
+tb_read.mgr.ready
+tb_read.mgr.clk
+tb_read.mgr.do
+tb_read.mgr.serial_dir
+@22
+tb_read.mgr.rdata[15:0]
+@28
+tb_read.mgr.rdata_valid
+tb_read.mgr.state
+@25
+tb_read.mgr.cnt
+@28
+tb_read.mgr.read
+[pattern_trace] 1
+[pattern_trace] 0
