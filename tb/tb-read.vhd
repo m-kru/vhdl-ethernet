@@ -65,11 +65,11 @@ begin
     -- Check signal values during the preamble
     for i in 1 to 2 * PREAMBLE_LEN - 1 loop
       assert mgr.do = '1'
-        report "do must equal '1' during the preamble, current value '" & to_string(mgr.do) & "'"
+        report "do must equal '1' during the preamble, current value " & mgr.do'image
         severity failure;
 
       assert mgr.serial_dir = '0'
-        report "serial_dir must equal '0' during the preamble, current value '" & to_string(mgr.serial_dir) & "'"
+        report "serial_dir must equal '0' during the preamble, current value " & mgr.serial_dir'image
         severity failure;
 
       wait for CLK_PERIOD;
@@ -77,20 +77,20 @@ begin
 
     -- Check start of frame pattern
     assert mgr.do = '0'
-      report "first bit of start of frame must equal '0', current value '" & to_string(mgr.do) & "'"
+      report "first bit of start of frame must equal '0', current value " & mgr.do'image
       severity failure;
     wait for 2 * CLK_PERIOD;
     assert mgr.do = '1'
-      report "second bit of start of frame must equal '1', current value '" & to_string(mgr.do) & "'"
+      report "second bit of start of frame must equal '1', current value " & mgr.do'image
       severity failure;
     wait for 2 * CLK_PERIOD;
 
     -- Check port address
     for i in 4 downto 0 loop
       assert mgr.do = PORT_ADDR(i)
-        report "invalid port address bit " & to_string(i) &
-          ": got '" & to_string(mgr.do) &
-          "', want '" & to_string(PORT_ADDR(i)) & "'"
+        report "invalid port address bit " & i'image &
+          ": got '" & mgr.do'image &
+          "', want '" & PORT_ADDR(i)'image & "'"
         severity failure;
       wait for 2 * CLK_PERIOD;
     end loop;

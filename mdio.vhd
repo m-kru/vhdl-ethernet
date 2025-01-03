@@ -141,10 +141,10 @@ package body mdio is
       mgr.clk := '1';
       mgr.state := PRE;
       report mgr.prefix & "starting transaction, " &
-        "op_code => b"""  & to_string(op_code) & """, " &
-        "port_addr => b""" & to_string(port_addr) & """, " &
-        "device_addr => b""" & to_string(device_addr) & """, " &
-        "wdata => b""" & to_string(wdata) & """"
+        "op_code => " & op_code'image & ", " &
+        "port_addr => " & port_addr'image & ", " &
+        "device_addr => " & device_addr'image & ", " &
+        "wdata => " & wdata'image
         severity note;
     end if;
 
