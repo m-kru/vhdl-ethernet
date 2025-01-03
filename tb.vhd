@@ -14,8 +14,7 @@ architecture test of tb is
   constant CLK_PERIOD : time := 10 ns;
   signal clk : std_logic := '0';
 
-  constant PREAMBLE_LEN : positive := 32;
-  signal mgr : mdio.manager_t := mdio.init(preamble_length => PREAMBLE_LEN);
+  signal mgr : mdio.manager_t := mdio.init(preamble_length => mdio.PREAMBLE_LENGTH);
 
   signal di, start : std_logic := '0';
   constant PORT_ADDR   : std_logic_vector(4 downto 0) := b"10101";
@@ -85,7 +84,7 @@ begin
     start <= '0';
 
     -- Check signal values during the preamble
-    for i in 1 to 2 * PREAMBLE_LEN - 1 loop
+    for i in 1 to 2 * mdio.PREAMBLE_LENGTH - 1 loop
       assert mgr.do = '1'
         report "do must equal '1' during the preamble, current value " & mgr.do'image
         severity failure;
@@ -156,7 +155,6 @@ begin
         severity failure;
       wait for 2 * CLK_PERIOD;
     end loop;
-
 
     wait for 5 * CLK_PERIOD;
     std.env.finish;

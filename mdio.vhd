@@ -24,15 +24,20 @@ library ieee;
 --      op code "11" is a read without an address increment.
 package mdio is
 
+  -- The PREAMBLE_LENGTH equals a fixed preamble length as defined in the specification.
+  -- However, some PHYs permits arbitrary length preamble.
+  -- Usually, a shorter preamble is used to reduce the transaction time.
+  constant PREAMBLE_LENGTH : positive := 32;
+
   -- Operation code constants
   constant ADDR     : std_logic_vector(1 downto 0) := b"00";
   constant WRITE    : std_logic_vector(1 downto 0) := b"01";
   constant READ_INC : std_logic_vector(1 downto 0) := b"10";
   constant READ     : std_logic_vector(1 downto 0) := b"11";
 
-  -- Type state_t represents manager internal state.
+  -- Manager internal state.
   --
-  -- The state_t is not intended to be used by the user of the package.
+  -- The type is not intended to be used by the user of the package.
   --   IDLE  - idle condition
   --   PRE   - preamble
   --   ST    - start of frame
@@ -43,7 +48,7 @@ package mdio is
   --   DATA  - address / data
   type state_t is (IDLE, PRE, ST, OP, PRTAD, DEVAD, TA, DATA);
 
-  -- The manager_t represents Station Management Entity (STA), the term used in IEEE 802.3.
+  -- Station Management Entity (STA), the term used in IEEE 802.3.
   -- In PHY datasheets, the STA is often called simply Station Manager.
   --
   -- The IEEE 802.3 defines a maxium clock frequency for MDIO interface.
@@ -60,7 +65,7 @@ package mdio is
   type manager_t is record
     -- Configuration elements
     prefix : string; -- Optional prefix used in report messages
-    preamble_length : positive range 1 to 32;
+    preamble_length : positive range 1 to PREAMBLE_LENGTH;
     -- Output elements
     ready       : std_logic; -- Asserted when manager is ready to carry out a transaction
     clk         : std_logic; -- MDIO clock
@@ -75,12 +80,16 @@ package mdio is
     read   : boolean; -- True if current operation is one of read operations
   end record;
 
+  -- Initialies manager.
+  --
+  -- Only configuration elements can be set.
+  -- There is no need to initialize output or internal elements to custom values.
   function init (
     prefix : string := "mdio: manager: ";
-    preamble_length : positive := 32
+    preamble_length : positive := PREAMBLE_LENGTH
   ) return manager_t;
 
-  -- Function clock is used to clock the manager state.
+  -- Clocks the manager state.
   --
   -- The manager doesn't latch inputs at the transaction start.
   -- It is user's responsibility to ensure input data has valid value throughout the transaction.
@@ -88,8 +97,8 @@ package mdio is
     manager     : manager_t;
     start       : std_logic; -- Start MDIO transaction
     di          : std_logic; -- MDIO serial data input from PHY
-    op_code     : std_logic_vector(1 downto 0);
-    port_addr   : std_logic_vector(4 downto 0); -- Port address
+    op_code     : std_logic_vector(1 downto 0); -- Operation code
+    port_addr   : std_logic_vector(4 downto 0); -- port address
     device_addr : std_logic_vector(4 downto 0); -- Device address
     wdata       : std_logic_vector(15 downto 0) -- MDIO write data, for op code "00", the data is a register address
   ) return manager_t;
@@ -100,7 +109,7 @@ package body mdio is
 
   function init (
     prefix : string := "mdio: manager: ";
-    preamble_length : positive := 32
+    preamble_length : positive := PREAMBLE_LENGTH
   ) return manager_t is
     constant mgr : manager_t := (
       prefix => prefix,
