@@ -5,11 +5,11 @@ library mdio;
   use mdio.mdio;
 
 
-entity tb_read is
+entity tb is
 end entity;
 
 
-architecture test of tb_read is
+architecture test of tb is
 
   constant CLK_PERIOD : time := 10 ns;
   signal clk : std_logic := '0';
@@ -20,8 +20,8 @@ architecture test of tb_read is
   signal di, start : std_logic := '0';
   constant PORT_ADDR   : std_logic_vector(4 downto 0) := b"10101";
   constant DEVICE_ADDR : std_logic_vector(4 downto 0) := b"00100";
-  constant WDATA       : std_logic_vector(15 downto 0) := (others => '-');
 
+  constant WDATA : std_logic_vector(15 downto 0) := b"1111000001010101";
   constant RDATA : std_logic_vector(15 downto 0) := b"1111000010101010";
 
 begin
@@ -32,7 +32,7 @@ begin
   DUT : process (clk) is
   begin
     if rising_edge(clk) then
-      mgr <= mdio.clock(mgr, start, di, mdio.READ_INC, port_addr, device_addr, wdata);
+      mgr <= mdio.clock(mgr, start, di, mdio.READ_INC, port_addr, device_addr, WDATA);
     end if;
   end process;
 
@@ -49,6 +49,22 @@ begin
 
     prev_mgr_clk := mgr.clk;
 
+  end process;
+
+
+  MMD_Mock : process is
+  begin
+    wait until rising_edge(mgr.serial_dir);
+
+  end process;
+
+
+  Rdata_Checker : process is
+  begin
+    wait until rising_edge(mgr.rdata_valid);
+    assert mgr.rdata = RDATA
+      report "invalid rdata, got " & mgr.rdata'image & ", want " & RDATA'image
+      severity failure;
   end process;
 
 
@@ -113,6 +129,27 @@ begin
         severity failure;
       wait for 2 * CLK_PERIOD;
     end loop;
+
+    -- Check turnaround
+    assert mgr.do = '1'
+      report "first bit of turnaround must equal '1', current value " & mgr.do'image
+      severity failure;
+    wait for 2 * CLK_PERIOD;
+    assert mgr.do = '0'
+      report "second bit of turnaround must equal '0', current value " & mgr.do'image
+      severity failure;
+    wait for 2 * CLK_PERIOD;
+
+    -- Check write data
+    for i in 15 downto 0 loop
+      assert mgr.do = WDATA(i)
+        report "invalid wdata bit " & i'image &
+          ": got " & mgr.do'image &
+          "', want " & WDATA(i)'image
+        severity failure;
+      wait for 2 * CLK_PERIOD;
+    end loop;
+
 
     wait for 5 * CLK_PERIOD;
     std.env.finish;

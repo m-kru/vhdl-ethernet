@@ -70,7 +70,7 @@ package mdio is
     rdata_valid : std_logic; -- Asserted for one cycle when read data becomes valid
     -- Internal elements
     state  : state_t;
-    cnt    : natural range 0 to 32; -- General purpose counter
+    cnt    : natural range 0 to 31; -- General purpose counter
     subcnt : natural range 0 to 1; -- General purpose subcounter
     read   : boolean; -- True if current operation is one of read operations
   end record;
@@ -112,7 +112,7 @@ package body mdio is
       rdata       => b"0000000000000000",
       rdata_valid => '0',
       state       => IDLE,
-      cnt         => 32,
+      cnt         => 31,
       subcnt      => 1,
       read        => false
     );
@@ -135,6 +135,7 @@ package body mdio is
     mgr.do := '1';
     mgr.cnt := mgr.preamble_length - 1;
     mgr.subcnt := 0;
+    mgr.ready := '1';
 
     if start = '1' then
       mgr.ready := '0';
@@ -313,6 +314,71 @@ package body mdio is
   end function;
 
 
+  function clock_ta (
+    manager     : manager_t;
+    start       : std_logic;
+    di          : std_logic;
+    op_code     : std_logic_vector(1 downto 0);
+    port_addr   : std_logic_vector(4 downto 0);
+    device_addr : std_logic_vector(4 downto 0);
+    wdata       : std_logic_vector(15 downto 0)
+  ) return manager_t is
+    variable mgr : manager_t := manager;
+  begin
+    if mgr.cnt = 3 then
+      mgr.clk := '1';
+      mgr.cnt := mgr.cnt - 1;
+    elsif mgr.cnt = 2 then
+      mgr.do := '0';
+      mgr.clk := '0';
+      mgr.cnt := mgr.cnt - 1;
+    elsif mgr.cnt = 1 then
+      mgr.clk := '1';
+      mgr.cnt := mgr.cnt - 1;
+    elsif mgr.cnt = 0 then
+      mgr.do := wdata(15);
+      mgr.cnt := 15;
+      mgr.clk := '0';
+      mgr.state := DATA;
+    end if;
+
+    return mgr;
+  end function;
+
+
+  function clock_data (
+    manager     : manager_t;
+    start       : std_logic;
+    di          : std_logic;
+    op_code     : std_logic_vector(1 downto 0);
+    port_addr   : std_logic_vector(4 downto 0);
+    device_addr : std_logic_vector(4 downto 0);
+    wdata       : std_logic_vector(15 downto 0)
+  ) return manager_t is
+    variable mgr : manager_t := manager;
+  begin
+    if mgr.subcnt = 1 then
+      mgr.subcnt := 0;
+      mgr.clk := '1';
+      mgr.rdata(mgr.cnt) := di;
+    elsif mgr.subcnt = 0 then
+      mgr.subcnt := 1;
+      mgr.clk := '0';
+      if mgr.cnt > 0 then
+        mgr.do := wdata(mgr.cnt);
+        mgr.cnt := mgr.cnt - 1;
+      elsif mgr.cnt = 0 then
+        if op_code = READ or op_code = READ_INC then
+          mgr.rdata_valid := '1';
+        end if;
+        mgr.state := IDLE;
+      end if;
+    end if;
+
+    return mgr;
+  end function;
+
+
   function clock (
     manager     : manager_t;
     start       : std_logic;
@@ -331,6 +397,8 @@ package body mdio is
       when OP    => mgr := clock_op    (mgr, start, di, op_code, port_addr, device_addr, wdata);
       when PRTAD => mgr := clock_prtad (mgr, start, di, op_code, port_addr, device_addr, wdata);
       when DEVAD => mgr := clock_devad (mgr, start, di, op_code, port_addr, device_addr, wdata);
+      when TA    => mgr := clock_ta    (mgr, start, di, op_code, port_addr, device_addr, wdata);
+      when DATA  => mgr := clock_data  (mgr, start, di, op_code, port_addr, device_addr, wdata);
       when others => report "unimplemented state " & state_t'image(mgr.state) severity failure;
     end case;
 

@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Fri Jan  3 11:06:01 2025
+[*] Fri Jan  3 12:53:33 2025
 [*]
 [dumpfile] "/home/mkru/workspace/vhdl/vhdl-mdio/build/vhdl/mdio/tb-read/tb_read.fst"
-[dumpfile_mtime] "Fri Jan  3 11:05:06 2025"
-[dumpfile_size] 805
+[dumpfile_mtime] "Fri Jan  3 12:23:44 2025"
+[dumpfile_size] 825
 [savefile] "/home/mkru/workspace/vhdl/vhdl-mdio/gtkwave/tb-read.gtkw"
-[timestart] 536500000
-[size] 2412 1270
-[pos] 293 600
-*-25.546856 955000000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[timestart] 0
+[size] 2441 1307
+[pos] 36 59
+*-26.800314 955000000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -40,7 +40,7 @@
 [sst_width] 276
 [signals_width] 333
 [sst_expanded] 1
-[sst_vpaned_height] 383
+[sst_vpaned_height] 395
 @28
 [color] 2
 tb_read.clk
