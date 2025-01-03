@@ -24,8 +24,9 @@ library ieee;
 --      op code "11" is a read without an address increment.
 package mdio is
 
-  -- The PREAMBLE_LENGTH equals a fixed preamble length as defined in the specification.
-  -- However, some PHYs permits arbitrary length preamble.
+  -- The fixed preamble length as defined in the specification.
+  --
+  -- Some PHYs permits arbitrary length preamble.
   -- Usually, a shorter preamble is used to reduce the transaction time.
   constant PREAMBLE_LENGTH : positive := 32;
 
@@ -202,14 +203,14 @@ package body mdio is
   begin
     if mgr.cnt = 3 then
       mgr.clk := '1';
-      mgr.cnt := mgr.cnt - 1;
+      mgr.cnt := 2;
     elsif mgr.cnt = 2 then
       mgr.do := '1';
       mgr.clk := '0';
-      mgr.cnt := mgr.cnt - 1;
+      mgr.cnt := 1;
     elsif mgr.cnt = 1 then
       mgr.clk := '1';
-      mgr.cnt := mgr.cnt - 1;
+      mgr.cnt := 0;
     elsif mgr.cnt = 0 then
       mgr.do := op_code(1);
       mgr.cnt := 3;
@@ -234,14 +235,14 @@ package body mdio is
   begin
     if mgr.cnt = 3 then
       mgr.clk := '1';
-      mgr.cnt := mgr.cnt - 1;
+      mgr.cnt := 2;
     elsif mgr.cnt = 2 then
       mgr.do := op_code(0);
       mgr.clk := '0';
-      mgr.cnt := mgr.cnt - 1;
+      mgr.cnt := 1;
     elsif mgr.cnt = 1 then
       mgr.clk := '1';
-      mgr.cnt := mgr.cnt - 1;
+      mgr.cnt := 0;
     elsif mgr.cnt = 0 then
       mgr.do := port_addr(4);
       mgr.cnt := 4;
@@ -249,6 +250,7 @@ package body mdio is
       mgr.clk := '0';
       mgr.state := PRTAD;
     end if;
+
     return mgr;
   end function;
 
@@ -333,14 +335,14 @@ package body mdio is
   begin
     if mgr.cnt = 3 then
       mgr.clk := '1';
-      mgr.cnt := mgr.cnt - 1;
+      mgr.cnt := 2;
     elsif mgr.cnt = 2 then
       mgr.do := '0';
       mgr.clk := '0';
-      mgr.cnt := mgr.cnt - 1;
+      mgr.cnt := 1;
     elsif mgr.cnt = 1 then
       mgr.clk := '1';
-      mgr.cnt := mgr.cnt - 1;
+      mgr.cnt := 0;
     elsif mgr.cnt = 0 then
       mgr.do := wdata(15);
       mgr.cnt := 15;
