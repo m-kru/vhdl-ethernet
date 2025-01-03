@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
-[*] Fri Jan  3 10:35:23 2025
+[*] Fri Jan  3 11:06:01 2025
 [*]
 [dumpfile] "/home/mkru/workspace/vhdl/vhdl-mdio/build/vhdl/mdio/tb-read/tb_read.fst"
-[dumpfile_mtime] "Fri Jan  3 10:35:17 2025"
-[dumpfile_size] 808
+[dumpfile_mtime] "Fri Jan  3 11:05:06 2025"
+[dumpfile_size] 805
 [savefile] "/home/mkru/workspace/vhdl/vhdl-mdio/gtkwave/tb-read.gtkw"
-[timestart] 0
-[size] 2412 1261
-[pos] 255 469
-*-26.546856 775000000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[timestart] 536500000
+[size] 2412 1270
+[pos] 293 600
+*-25.546856 955000000 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 [markername] AA
 [markername] BB
 [markername] CC
@@ -40,7 +40,7 @@
 [sst_width] 276
 [signals_width] 333
 [sst_expanded] 1
-[sst_vpaned_height] 381
+[sst_vpaned_height] 383
 @28
 [color] 2
 tb_read.clk
@@ -49,7 +49,6 @@ tb_read.clk
 @28
 tb_read.start
 tb_read.di
-tb_read.op_code[1:0]
 @200
 -Manager
 @24
@@ -58,10 +57,8 @@ tb_read.mgr.preamble_length
 tb_read.mgr.ready
 [color] 2
 tb_read.mgr.clk
-@29
 [color] 7
 tb_read.mgr.do
-@28
 tb_read.mgr.serial_dir
 @22
 tb_read.mgr.rdata[15:0]
@@ -71,6 +68,8 @@ tb_read.mgr.rdata_valid
 tb_read.mgr.state
 @24
 tb_read.mgr.cnt
+@25
+tb_read.mgr.subcnt
 @28
 tb_read.mgr.read
 [pattern_trace] 1

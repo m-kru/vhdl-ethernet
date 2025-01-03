@@ -267,9 +267,45 @@ package body mdio is
           mgr.cnt := mgr.cnt - 1;
           mgr.do := port_addr(mgr.cnt);
         else
-          mgr.cnt := 3;
+          mgr.cnt := 4;
           mgr.do := device_addr(4);
           mgr.state := DEVAD;
+        end if;
+    end if;
+
+    return mgr;
+  end function;
+
+
+  function clock_devad (
+    manager     : manager_t;
+    start       : std_logic;
+    di          : std_logic;
+    op_code     : std_logic_vector(1 downto 0);
+    port_addr   : std_logic_vector(4 downto 0);
+    device_addr : std_logic_vector(4 downto 0);
+    wdata       : std_logic_vector(15 downto 0)
+  ) return manager_t is
+    variable mgr : manager_t := manager;
+  begin
+    if mgr.subcnt = 1 then
+      mgr.clk := '1';
+      mgr.subcnt := 0;
+    elsif mgr.subcnt = 0 then
+        mgr.clk := '0';
+        mgr.subcnt := 1;
+        if mgr.cnt > 0 then
+          mgr.cnt := mgr.cnt - 1;
+          mgr.do := device_addr(mgr.cnt);
+        else
+          mgr.cnt := 3;
+
+          mgr.do := '1';
+          if op_code = READ or op_code = READ_INC then
+            mgr.serial_dir := '1';
+          end if;
+
+          mgr.state := TA;
         end if;
     end if;
 
@@ -294,6 +330,7 @@ package body mdio is
       when ST    => mgr := clock_st    (mgr, start, di, op_code, port_addr, device_addr, wdata);
       when OP    => mgr := clock_op    (mgr, start, di, op_code, port_addr, device_addr, wdata);
       when PRTAD => mgr := clock_prtad (mgr, start, di, op_code, port_addr, device_addr, wdata);
+      when DEVAD => mgr := clock_devad (mgr, start, di, op_code, port_addr, device_addr, wdata);
       when others => report "unimplemented state " & state_t'image(mgr.state) severity failure;
     end case;
 

@@ -18,10 +18,9 @@ architecture test of tb_read is
   signal mgr : mdio.manager_t := mdio.init(preamble_length => PREAMBLE_LEN);
 
   signal di, start : std_logic := '0';
-  signal op_code   : std_logic_vector(1 downto 0) := mdio.READ_INC;
-  constant port_addr   : std_logic_vector(4 downto 0) := b"10101";
-  constant device_addr : std_logic_vector(4 downto 0) := b"00100";
-  constant wdata       : std_logic_vector(15 downto 0) := (others => '-');
+  constant PORT_ADDR   : std_logic_vector(4 downto 0) := b"10101";
+  constant DEVICE_ADDR : std_logic_vector(4 downto 0) := b"00100";
+  constant WDATA       : std_logic_vector(15 downto 0) := (others => '-');
 
   constant RDATA : std_logic_vector(15 downto 0) := b"1111000010101010";
 
@@ -33,7 +32,7 @@ begin
   DUT : process (clk) is
   begin
     if rising_edge(clk) then
-      mgr <= mdio.clock(mgr, start, di, op_code, port_addr, device_addr, wdata);
+      mgr <= mdio.clock(mgr, start, di, mdio.READ_INC, port_addr, device_addr, wdata);
     end if;
   end process;
 
@@ -85,12 +84,32 @@ begin
       severity failure;
     wait for 2 * CLK_PERIOD;
 
+    -- Check operation code
+    assert mgr.do = MDIO.READ_INC(1)
+      report "first bit of op code must equal '1', current value " & mgr.do'image
+      severity failure;
+    wait for 2 * CLK_PERIOD;
+    assert mgr.do = MDIO.READ_INC(0)
+      report "second bit of op code must equal '0', current value " & mgr.do'image
+      severity failure;
+    wait for 2 * CLK_PERIOD;
+
     -- Check port address
     for i in 4 downto 0 loop
       assert mgr.do = PORT_ADDR(i)
         report "invalid port address bit " & i'image &
-          ": got '" & mgr.do'image &
-          "', want '" & PORT_ADDR(i)'image & "'"
+          ": got " & mgr.do'image &
+          "', want " & PORT_ADDR(i)'image
+        severity failure;
+      wait for 2 * CLK_PERIOD;
+    end loop;
+
+    -- Check device address
+    for i in 4 downto 0 loop
+      assert mgr.do = DEVICE_ADDR(i)
+        report "invalid device address bit " & i'image &
+          ": got " & mgr.do'image &
+          ", want " & DEVICE_ADDR(i)'image
         severity failure;
       wait for 2 * CLK_PERIOD;
     end loop;
