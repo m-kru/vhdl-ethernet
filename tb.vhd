@@ -21,8 +21,8 @@ architecture test of tb is
   constant PORT_ADDR   : std_logic_vector(4 downto 0) := b"10101";
   constant DEVICE_ADDR : std_logic_vector(4 downto 0) := b"00100";
 
+  constant RDATA : std_logic_vector(15 downto 0) := b"1110001010111000";
   constant WDATA : std_logic_vector(15 downto 0) := b"1111000001010101";
-  constant RDATA : std_logic_vector(15 downto 0) := b"1111000010101010";
 
 begin
 
@@ -55,6 +55,13 @@ begin
   MMD_Mock : process is
   begin
     wait until rising_edge(mgr.serial_dir);
+
+    wait for 4 * CLK_PERIOD;
+
+    for i in 15 downto 0 loop
+      di <= RDATA(i);
+      wait for 2 * CLK_PERIOD;
+    end loop;
 
   end process;
 
@@ -115,7 +122,7 @@ begin
       assert mgr.do = PORT_ADDR(i)
         report "invalid port address bit " & i'image &
           ": got " & mgr.do'image &
-          "', want " & PORT_ADDR(i)'image
+          ", want " & PORT_ADDR(i)'image
         severity failure;
       wait for 2 * CLK_PERIOD;
     end loop;
@@ -145,7 +152,7 @@ begin
       assert mgr.do = WDATA(i)
         report "invalid wdata bit " & i'image &
           ": got " & mgr.do'image &
-          "', want " & WDATA(i)'image
+          ", want " & WDATA(i)'image
         severity failure;
       wait for 2 * CLK_PERIOD;
     end loop;

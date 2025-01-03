@@ -112,8 +112,8 @@ package body mdio is
       rdata       => b"0000000000000000",
       rdata_valid => '0',
       state       => IDLE,
-      cnt         => 31,
-      subcnt      => 1,
+      cnt         => preamble_length - 1,
+      subcnt      => 0,
       read        => false
     );
   begin
@@ -132,10 +132,7 @@ package body mdio is
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
-    mgr.do := '1';
-    mgr.cnt := mgr.preamble_length - 1;
-    mgr.subcnt := 0;
-    mgr.ready := '1';
+    mgr := init(mgr.prefix, mgr.preamble_length);
 
     if start = '1' then
       mgr.ready := '0';
@@ -365,8 +362,8 @@ package body mdio is
       mgr.subcnt := 1;
       mgr.clk := '0';
       if mgr.cnt > 0 then
-        mgr.do := wdata(mgr.cnt);
         mgr.cnt := mgr.cnt - 1;
+        mgr.do := wdata(mgr.cnt);
       elsif mgr.cnt = 0 then
         if op_code = READ or op_code = READ_INC then
           mgr.rdata_valid := '1';
