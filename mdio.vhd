@@ -66,7 +66,7 @@ package mdio is
   type manager_t is record
     -- Configuration elements
     prefix : string; -- Optional prefix used in report messages
-    preamble_length : positive range 1 to PREAMBLE_LENGTH;
+    preamble_length : natural;
     -- Output elements
     ready       : std_logic; -- Asserted when manager is ready to carry out a transaction
     clk         : std_logic; -- MDIO clock
@@ -87,7 +87,7 @@ package mdio is
   -- There is no need to initialize output or internal elements to custom values.
   function init (
     prefix : string := "mdio: manager: ";
-    preamble_length : positive := PREAMBLE_LENGTH
+    preamble_length : natural := PREAMBLE_LENGTH
   ) return manager_t;
 
   -- Clocks the manager state.
@@ -110,7 +110,7 @@ package body mdio is
 
   function init (
     prefix : string := "mdio: manager: ";
-    preamble_length : positive := PREAMBLE_LENGTH
+    preamble_length : natural := PREAMBLE_LENGTH
   ) return manager_t is
     constant mgr : manager_t := (
       prefix => prefix,
@@ -122,7 +122,7 @@ package body mdio is
       rdata       => b"0000000000000000",
       rdata_valid => '0',
       state       => IDLE,
-      cnt         => preamble_length - 1,
+      cnt         => 0,
       subcnt      => 0,
       read        => false
     );
@@ -146,8 +146,18 @@ package body mdio is
 
     if start = '1' then
       mgr.ready := '0';
-      mgr.clk := '1';
-      mgr.state := PRE;
+
+      if mgr.preamble_length > 0 then
+        mgr.cnt := mgr.preamble_length - 1;
+        mgr.clk := '1';
+        mgr.state := PRE;
+      else
+        mgr.cnt := 3;
+        mgr.subcnt := 1;
+        mgr.do := '0';
+        mgr.state := ST;
+      end if;
+
       report mgr.prefix & "starting transaction, " &
         "op_code => " & op_code'image & ", " &
         "port_addr => " & port_addr'image & ", " &
