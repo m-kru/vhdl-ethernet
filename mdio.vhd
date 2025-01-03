@@ -31,7 +31,17 @@ package mdio is
   constant READ     : std_logic_vector(1 downto 0) := b"11";
 
   -- Type state_t represents manager internal state.
-  type state_t is (IDLE, PREAMBLE, START_OF_FRAME, OP_CODE, PORT_ADDR, DEV_ADDR, TURNAROUND, DATA);
+  --
+  -- The state_t is not intended to be used by the user of the package.
+  --   IDLE  - idle condition
+  --   PRE   - preamble
+  --   ST    - start of frame
+  --   OP    - operation code
+  --   PRTAD - port address
+  --   DEVAD - device address
+  --   TA    - turnaround
+  --   DATA  - address / data
+  type state_t is (IDLE, PRE, ST, OP, PRTAD, DEVAD, TA, DATA);
 
   -- The manager_t represents Station Management Entity (STA), the term used in IEEE 802.3.
   -- In PHY datasheets, the STA is often called simply Station Manager.
@@ -123,11 +133,13 @@ package body mdio is
     variable mgr : manager_t := manager;
   begin
     mgr.do := '1';
-    mgr.cnt := mgr.preamble_length;
+    mgr.cnt := mgr.preamble_length - 1;
+    mgr.subcnt := 0;
 
     if start = '1' then
       mgr.ready := '0';
-      mgr.state := PREAMBLE;
+      mgr.clk := '1';
+      mgr.state := PRE;
       report mgr.prefix & "starting transaction, " &
         "op_code => b"""  & to_string(op_code) & """, " &
         "port_addr => b""" & to_string(port_addr) & """, " &
@@ -140,7 +152,7 @@ package body mdio is
   end function;
 
 
-  function clock_preamble (
+  function clock_pre (
     manager     : manager_t;
     start       : std_logic;
     di          : std_logic;
@@ -151,29 +163,26 @@ package body mdio is
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
-    if mgr.cnt > 0 then
-      if mgr.subcnt = 1 then
+    if mgr.subcnt = 1 then
         mgr.clk := '1';
         mgr.subcnt := 0;
-      elsif mgr.subcnt = 0 then
+    elsif mgr.subcnt = 0 then
         mgr.clk := '0';
-        mgr.cnt := mgr.cnt - 1;
         mgr.subcnt := 1;
-      end if;
-    else
-      if mgr.subcnt = 1 then
-        mgr.subcnt := 0;
-      elsif mgr.subcnt = 0 then
-        mgr.subcnt := 1;
-        mgr.state := START_OF_FRAME;
-      end if;
+        if mgr.cnt > 0 then
+          mgr.cnt := mgr.cnt - 1;
+        else
+          mgr.cnt := 3;
+          mgr.do := '0';
+          mgr.state := ST;
+        end if;
     end if;
 
     return mgr;
   end function;
 
 
-  function clock_start_of_frame (
+  function clock_st (
     manager     : manager_t;
     start       : std_logic;
     di          : std_logic;
@@ -184,6 +193,86 @@ package body mdio is
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
+    if mgr.cnt = 3 then
+      mgr.clk := '1';
+      mgr.cnt := mgr.cnt - 1;
+    elsif mgr.cnt = 2 then
+      mgr.do := '1';
+      mgr.clk := '0';
+      mgr.cnt := mgr.cnt - 1;
+    elsif mgr.cnt = 1 then
+      mgr.clk := '1';
+      mgr.cnt := mgr.cnt - 1;
+    elsif mgr.cnt = 0 then
+      mgr.do := op_code(1);
+      mgr.cnt := 3;
+      mgr.clk := '0';
+      mgr.state := OP;
+    end if;
+
+    return mgr;
+  end function;
+
+
+  function clock_op (
+    manager     : manager_t;
+    start       : std_logic;
+    di          : std_logic;
+    op_code     : std_logic_vector(1 downto 0);
+    port_addr   : std_logic_vector(4 downto 0);
+    device_addr : std_logic_vector(4 downto 0);
+    wdata       : std_logic_vector(15 downto 0)
+  ) return manager_t is
+    variable mgr : manager_t := manager;
+  begin
+    if mgr.cnt = 3 then
+      mgr.clk := '1';
+      mgr.cnt := mgr.cnt - 1;
+    elsif mgr.cnt = 2 then
+      mgr.do := op_code(0);
+      mgr.clk := '0';
+      mgr.cnt := mgr.cnt - 1;
+    elsif mgr.cnt = 1 then
+      mgr.clk := '1';
+      mgr.cnt := mgr.cnt - 1;
+    elsif mgr.cnt = 0 then
+      mgr.do := port_addr(4);
+      mgr.cnt := 4;
+      mgr.subcnt := 1;
+      mgr.clk := '0';
+      mgr.state := PRTAD;
+    end if;
+    return mgr;
+  end function;
+
+
+  function clock_prtad (
+    manager     : manager_t;
+    start       : std_logic;
+    di          : std_logic;
+    op_code     : std_logic_vector(1 downto 0);
+    port_addr   : std_logic_vector(4 downto 0);
+    device_addr : std_logic_vector(4 downto 0);
+    wdata       : std_logic_vector(15 downto 0)
+  ) return manager_t is
+    variable mgr : manager_t := manager;
+  begin
+    if mgr.subcnt = 1 then
+      mgr.clk := '1';
+      mgr.subcnt := 0;
+    elsif mgr.subcnt = 0 then
+        mgr.clk := '0';
+        mgr.subcnt := 1;
+        if mgr.cnt > 0 then
+          mgr.cnt := mgr.cnt - 1;
+          mgr.do := port_addr(mgr.cnt);
+        else
+          mgr.cnt := 3;
+          mgr.do := device_addr(4);
+          mgr.state := DEVAD;
+        end if;
+    end if;
+
     return mgr;
   end function;
 
@@ -200,10 +289,12 @@ package body mdio is
     variable mgr : manager_t := manager;
   begin
     case mgr.state is
-      when IDLE     => mgr := clock_idle(mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when PREAMBLE => mgr := clock_preamble(mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when START_OF_FRAME => mgr := clock_start_of_frame(mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when others   => report "unimplemented state " & state_t'image(mgr.state) severity failure;
+      when IDLE  => mgr := clock_idle  (mgr, start, di, op_code, port_addr, device_addr, wdata);
+      when PRE   => mgr := clock_pre   (mgr, start, di, op_code, port_addr, device_addr, wdata);
+      when ST    => mgr := clock_st    (mgr, start, di, op_code, port_addr, device_addr, wdata);
+      when OP    => mgr := clock_op    (mgr, start, di, op_code, port_addr, device_addr, wdata);
+      when PRTAD => mgr := clock_prtad (mgr, start, di, op_code, port_addr, device_addr, wdata);
+      when others => report "unimplemented state " & state_t'image(mgr.state) severity failure;
     end case;
 
     return mgr;
