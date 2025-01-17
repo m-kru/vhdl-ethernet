@@ -65,8 +65,8 @@ package mdio is
   -- The serial_dir signal shall be used to properly multiplex the MDIO signal direction.
   type manager_t is record
     -- Configuration elements
-    prefix : string; -- Optional prefix used in report messages
-    preamble_length : natural;
+    REPORT_PREFIX   : string; -- Optional prefix used in report messages
+    PREAMBLE_LENGTH : natural;
     -- Output elements
     ready       : std_logic; -- Asserted when manager is ready to carry out a transaction
     clk         : std_logic; -- MDIO clock
@@ -86,8 +86,8 @@ package mdio is
   -- Only configuration elements can be set.
   -- There is no need to initialize output or internal elements to custom values.
   function init (
-    prefix : string := "mdio: manager: ";
-    preamble_length : natural := PREAMBLE_LENGTH
+    REPORT_PREFIX   : string := "mdio: manager: ";
+    PREAMBLE_LENGTH : natural := PREAMBLE_LENGTH
   ) return manager_t;
 
   -- Clocks the manager state.
@@ -109,12 +109,12 @@ end package;
 package body mdio is
 
   function init (
-    prefix : string := "mdio: manager: ";
-    preamble_length : natural := PREAMBLE_LENGTH
+    REPORT_PREFIX   : string := "mdio: manager: ";
+    PREAMBLE_LENGTH : natural := PREAMBLE_LENGTH
   ) return manager_t is
     constant mgr : manager_t := (
-      prefix => prefix,
-      preamble_length => preamble_length,
+      REPORT_PREFIX   => REPORT_PREFIX,
+      PREAMBLE_LENGTH => PREAMBLE_LENGTH,
       ready       => '1',
       clk         => '0',
       do          => '1',
@@ -142,13 +142,13 @@ package body mdio is
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
-    mgr := init(mgr.prefix, mgr.preamble_length);
+    mgr := init(mgr.REPORT_PREFIX, mgr.PREAMBLE_LENGTH);
 
     if start = '1' then
       mgr.ready := '0';
 
-      if mgr.preamble_length > 0 then
-        mgr.cnt := mgr.preamble_length - 1;
+      if mgr.PREAMBLE_LENGTH > 0 then
+        mgr.cnt := mgr.PREAMBLE_LENGTH - 1;
         mgr.clk := '1';
         mgr.state := PRE;
       else
@@ -158,7 +158,7 @@ package body mdio is
         mgr.state := ST;
       end if;
 
-      report mgr.prefix & "starting transaction, " &
+      report mgr.REPORT_PREFIX & "starting transaction, " &
         "op_code => " & op_code'image & ", " &
         "port_addr => " & port_addr'image & ", " &
         "device_addr => " & device_addr'image & ", " &
