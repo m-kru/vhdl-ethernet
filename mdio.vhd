@@ -96,8 +96,8 @@ package mdio is
   -- It is user's responsibility to ensure input data has valid value throughout the transaction.
   function clock (
     manager     : manager_t;
-    start       : std_logic; -- Start MDIO transaction
     mdi         : std_logic; -- MDIO serial data input from PHY
+    start       : std_logic; -- Start MDIO transaction
     op_code     : std_logic_vector(1 downto 0); -- Operation code
     port_addr   : std_logic_vector(4 downto 0); -- port address
     device_addr : std_logic_vector(4 downto 0); -- Device address
@@ -367,8 +367,8 @@ package body mdio is
 
   function clock (
     manager     : manager_t;
-    start       : std_logic;
     mdi         : std_logic;
+    start       : std_logic;
     op_code     : std_logic_vector(1 downto 0);
     port_addr   : std_logic_vector(4 downto 0);
     device_addr : std_logic_vector(4 downto 0);

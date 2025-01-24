@@ -31,7 +31,7 @@ begin
   DUT : process (clk) is
   begin
     if rising_edge(clk) then
-      mgr <= mdio.clock(mgr, start, mdi, mdio.READ_INC, port_addr, device_addr, WDATA);
+      mgr <= mdio.clock(mgr, mdi, start, mdio.READ_INC, port_addr, device_addr, WDATA);
     end if;
   end process;
 
