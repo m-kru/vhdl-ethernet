@@ -16,7 +16,7 @@ architecture test of tb is
 
   signal mgr : mdio.manager_t := mdio.init(preamble_length => mdio.PREAMBLE_LENGTH);
 
-  signal di, start : std_logic := '0';
+  signal mdi, start : std_logic := '0';
   constant PORT_ADDR   : std_logic_vector(4 downto 0) := b"10101";
   constant DEVICE_ADDR : std_logic_vector(4 downto 0) := b"00100";
 
@@ -31,7 +31,7 @@ begin
   DUT : process (clk) is
   begin
     if rising_edge(clk) then
-      mgr <= mdio.clock(mgr, start, di, mdio.READ_INC, port_addr, device_addr, WDATA);
+      mgr <= mdio.clock(mgr, start, mdi, mdio.READ_INC, port_addr, device_addr, WDATA);
     end if;
   end process;
 
@@ -58,7 +58,7 @@ begin
     wait for 4 * CLK_PERIOD;
 
     for i in 15 downto 0 loop
-      di <= RDATA(i);
+      mdi <= RDATA(i);
       wait for 2 * CLK_PERIOD;
     end loop;
 

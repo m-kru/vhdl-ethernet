@@ -97,7 +97,7 @@ package mdio is
   function clock (
     manager     : manager_t;
     start       : std_logic; -- Start MDIO transaction
-    di          : std_logic; -- MDIO serial data input from PHY
+    mdi         : std_logic; -- MDIO serial data input from PHY
     op_code     : std_logic_vector(1 downto 0); -- Operation code
     port_addr   : std_logic_vector(4 downto 0); -- port address
     device_addr : std_logic_vector(4 downto 0); -- Device address
@@ -337,7 +337,7 @@ package body mdio is
 
   function clock_data (
     manager : manager_t;
-    di      : std_logic;
+    mdi     : std_logic;
     op_code : std_logic_vector(1 downto 0);
     wdata   : std_logic_vector(15 downto 0)
   ) return manager_t is
@@ -346,7 +346,7 @@ package body mdio is
     if mgr.subcnt = 1 then
       mgr.subcnt := 0;
       mgr.mdc := '1';
-      mgr.rdata(mgr.cnt) := di;
+      mgr.rdata(mgr.cnt) := mdi;
     elsif mgr.subcnt = 0 then
       mgr.subcnt := 1;
       mgr.mdc := '0';
@@ -368,7 +368,7 @@ package body mdio is
   function clock (
     manager     : manager_t;
     start       : std_logic;
-    di          : std_logic;
+    mdi         : std_logic;
     op_code     : std_logic_vector(1 downto 0);
     port_addr   : std_logic_vector(4 downto 0);
     device_addr : std_logic_vector(4 downto 0);
@@ -384,7 +384,7 @@ package body mdio is
       when PRTAD => mgr := clock_prtad (mgr, port_addr, device_addr);
       when DEVAD => mgr := clock_devad (mgr, op_code, device_addr);
       when TA    => mgr := clock_ta    (mgr, wdata);
-      when DATA  => mgr := clock_data  (mgr, di, op_code, wdata);
+      when DATA  => mgr := clock_data  (mgr, mdi, op_code, wdata);
       when others => report "unimplemented state " & state_t'image(mgr.state) severity failure;
     end case;
 
