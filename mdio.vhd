@@ -69,7 +69,7 @@ package mdio is
     PREAMBLE_LENGTH : natural;
     -- Output elements
     ready       : std_logic; -- Asserted when manager is ready to carry out a transaction
-    clk         : std_logic; -- MDIO clock
+    mdc         : std_logic; -- MDIO clock
     do          : std_logic; -- MDIO serial data output to PHY
     serial_dir  : std_logic; -- Direction of serial data, '0': Manager -> PHY, '1': Manager <- PHY
     rdata       : std_logic_vector(15 downto 0); -- MDIO read data
@@ -116,7 +116,7 @@ package body mdio is
       REPORT_PREFIX   => REPORT_PREFIX,
       PREAMBLE_LENGTH => PREAMBLE_LENGTH,
       ready       => '1',
-      clk         => '0',
+      mdc         => '0',
       do          => '1',
       serial_dir  => '0',
       rdata       => b"0000000000000000",
@@ -148,7 +148,7 @@ package body mdio is
 
       if mgr.PREAMBLE_LENGTH > 0 then
         mgr.cnt := mgr.PREAMBLE_LENGTH - 1;
-        mgr.clk := '1';
+        mgr.mdc := '1';
         mgr.state := PRE;
       else
         mgr.cnt := 3;
@@ -175,10 +175,10 @@ package body mdio is
     variable mgr : manager_t := manager;
   begin
     if mgr.subcnt = 1 then
-        mgr.clk := '1';
+        mgr.mdc := '1';
         mgr.subcnt := 0;
     elsif mgr.subcnt = 0 then
-        mgr.clk := '0';
+        mgr.mdc := '0';
         mgr.subcnt := 1;
         if mgr.cnt > 0 then
           mgr.cnt := mgr.cnt - 1;
@@ -200,19 +200,19 @@ package body mdio is
     variable mgr : manager_t := manager;
   begin
     if mgr.cnt = 3 then
-      mgr.clk := '1';
+      mgr.mdc := '1';
       mgr.cnt := 2;
     elsif mgr.cnt = 2 then
       mgr.do := '1';
-      mgr.clk := '0';
+      mgr.mdc := '0';
       mgr.cnt := 1;
     elsif mgr.cnt = 1 then
-      mgr.clk := '1';
+      mgr.mdc := '1';
       mgr.cnt := 0;
     elsif mgr.cnt = 0 then
       mgr.do := op_code(1);
       mgr.cnt := 3;
-      mgr.clk := '0';
+      mgr.mdc := '0';
       mgr.state := OP;
     end if;
 
@@ -228,20 +228,20 @@ package body mdio is
     variable mgr : manager_t := manager;
   begin
     if mgr.cnt = 3 then
-      mgr.clk := '1';
+      mgr.mdc := '1';
       mgr.cnt := 2;
     elsif mgr.cnt = 2 then
       mgr.do := op_code(0);
-      mgr.clk := '0';
+      mgr.mdc := '0';
       mgr.cnt := 1;
     elsif mgr.cnt = 1 then
-      mgr.clk := '1';
+      mgr.mdc := '1';
       mgr.cnt := 0;
     elsif mgr.cnt = 0 then
       mgr.do := port_addr(4);
       mgr.cnt := 4;
       mgr.subcnt := 1;
-      mgr.clk := '0';
+      mgr.mdc := '0';
       mgr.state := PRTAD;
     end if;
 
@@ -257,10 +257,10 @@ package body mdio is
     variable mgr : manager_t := manager;
   begin
     if mgr.subcnt = 1 then
-      mgr.clk := '1';
+      mgr.mdc := '1';
       mgr.subcnt := 0;
     elsif mgr.subcnt = 0 then
-        mgr.clk := '0';
+        mgr.mdc := '0';
         mgr.subcnt := 1;
         if mgr.cnt > 0 then
           mgr.cnt := mgr.cnt - 1;
@@ -284,10 +284,10 @@ package body mdio is
     variable mgr : manager_t := manager;
   begin
     if mgr.subcnt = 1 then
-      mgr.clk := '1';
+      mgr.mdc := '1';
       mgr.subcnt := 0;
     elsif mgr.subcnt = 0 then
-        mgr.clk := '0';
+        mgr.mdc := '0';
         mgr.subcnt := 1;
         if mgr.cnt > 0 then
           mgr.cnt := mgr.cnt - 1;
@@ -315,19 +315,19 @@ package body mdio is
     variable mgr : manager_t := manager;
   begin
     if mgr.cnt = 3 then
-      mgr.clk := '1';
+      mgr.mdc := '1';
       mgr.cnt := 2;
     elsif mgr.cnt = 2 then
       mgr.do := '0';
-      mgr.clk := '0';
+      mgr.mdc := '0';
       mgr.cnt := 1;
     elsif mgr.cnt = 1 then
-      mgr.clk := '1';
+      mgr.mdc := '1';
       mgr.cnt := 0;
     elsif mgr.cnt = 0 then
       mgr.do := wdata(15);
       mgr.cnt := 15;
-      mgr.clk := '0';
+      mgr.mdc := '0';
       mgr.state := DATA;
     end if;
 
@@ -345,11 +345,11 @@ package body mdio is
   begin
     if mgr.subcnt = 1 then
       mgr.subcnt := 0;
-      mgr.clk := '1';
+      mgr.mdc := '1';
       mgr.rdata(mgr.cnt) := di;
     elsif mgr.subcnt = 0 then
       mgr.subcnt := 1;
-      mgr.clk := '0';
+      mgr.mdc := '0';
       if mgr.cnt > 0 then
         mgr.cnt := mgr.cnt - 1;
         mgr.do := wdata(mgr.cnt);

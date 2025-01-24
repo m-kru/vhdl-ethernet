@@ -38,15 +38,15 @@ begin
 
   -- MDC must not be asserted for more than 1 clock cycle.
   MDC_Checker : process is
-    variable prev_mgr_clk : std_logic;
+    variable prev_mgr_mdc : std_logic;
   begin
     wait until rising_edge(clk);
 
-    assert prev_mgr_clk /= '1' or mgr.clk /= '1'
+    assert prev_mgr_mdc /= '1' or mgr.mdc /= '1'
       report "MDC asserted for more than 1 clock cycle"
       severity failure;
 
-    prev_mgr_clk := mgr.clk;
+    prev_mgr_mdc := mgr.mdc;
 
   end process;
 
