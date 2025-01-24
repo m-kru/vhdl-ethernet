@@ -19,7 +19,7 @@ library ieee;
 --   2. Device address is a register address.
 --   3. Don't use op code "00", it was introduced in the Clause 45.
 --   4. Don't use op code "11", it was introduced in the Clause 45.
---      In standard MDIO op code "10", is a read. In the Caluse 45,
+--      In standard MDIO, op code "10" is a read. In the Caluse 45,
 --      op code "10" is a read with post address increment, and
 --      op code "11" is a read without an address increment.
 package mdio is
