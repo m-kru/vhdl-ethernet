@@ -134,7 +134,6 @@ package body mdio is
   function clock_idle (
     manager     : manager_t;
     start       : std_logic;
-    di          : std_logic;
     op_code     : std_logic_vector(1 downto 0);
     port_addr   : std_logic_vector(4 downto 0);
     device_addr : std_logic_vector(4 downto 0);
@@ -171,13 +170,7 @@ package body mdio is
 
 
   function clock_pre (
-    manager     : manager_t;
-    start       : std_logic;
-    di          : std_logic;
-    op_code     : std_logic_vector(1 downto 0);
-    port_addr   : std_logic_vector(4 downto 0);
-    device_addr : std_logic_vector(4 downto 0);
-    wdata       : std_logic_vector(15 downto 0)
+    manager : manager_t;
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -201,13 +194,8 @@ package body mdio is
 
 
   function clock_st (
-    manager     : manager_t;
-    start       : std_logic;
-    di          : std_logic;
-    op_code     : std_logic_vector(1 downto 0);
-    port_addr   : std_logic_vector(4 downto 0);
-    device_addr : std_logic_vector(4 downto 0);
-    wdata       : std_logic_vector(15 downto 0)
+    manager : manager_t;
+    op_code : std_logic_vector(1 downto 0);
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -233,13 +221,9 @@ package body mdio is
 
 
   function clock_op (
-    manager     : manager_t;
-    start       : std_logic;
-    di          : std_logic;
-    op_code     : std_logic_vector(1 downto 0);
-    port_addr   : std_logic_vector(4 downto 0);
-    device_addr : std_logic_vector(4 downto 0);
-    wdata       : std_logic_vector(15 downto 0)
+    manager   : manager_t;
+    op_code   : std_logic_vector(1 downto 0);
+    port_addr : std_logic_vector(4 downto 0);
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -267,12 +251,8 @@ package body mdio is
 
   function clock_prtad (
     manager     : manager_t;
-    start       : std_logic;
-    di          : std_logic;
-    op_code     : std_logic_vector(1 downto 0);
     port_addr   : std_logic_vector(4 downto 0);
     device_addr : std_logic_vector(4 downto 0);
-    wdata       : std_logic_vector(15 downto 0)
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -298,12 +278,8 @@ package body mdio is
 
   function clock_devad (
     manager     : manager_t;
-    start       : std_logic;
-    di          : std_logic;
     op_code     : std_logic_vector(1 downto 0);
-    port_addr   : std_logic_vector(4 downto 0);
     device_addr : std_logic_vector(4 downto 0);
-    wdata       : std_logic_vector(15 downto 0)
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -333,13 +309,8 @@ package body mdio is
 
 
   function clock_ta (
-    manager     : manager_t;
-    start       : std_logic;
-    di          : std_logic;
-    op_code     : std_logic_vector(1 downto 0);
-    port_addr   : std_logic_vector(4 downto 0);
-    device_addr : std_logic_vector(4 downto 0);
-    wdata       : std_logic_vector(15 downto 0)
+    manager : manager_t;
+    wdata   : std_logic_vector(15 downto 0)
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -365,13 +336,10 @@ package body mdio is
 
 
   function clock_data (
-    manager     : manager_t;
-    start       : std_logic;
-    di          : std_logic;
-    op_code     : std_logic_vector(1 downto 0);
-    port_addr   : std_logic_vector(4 downto 0);
-    device_addr : std_logic_vector(4 downto 0);
-    wdata       : std_logic_vector(15 downto 0)
+    manager : manager_t;
+    di      : std_logic;
+    op_code : std_logic_vector(1 downto 0);
+    wdata   : std_logic_vector(15 downto 0)
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -409,14 +377,14 @@ package body mdio is
     variable mgr : manager_t := manager;
   begin
     case mgr.state is
-      when IDLE  => mgr := clock_idle  (mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when PRE   => mgr := clock_pre   (mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when ST    => mgr := clock_st    (mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when OP    => mgr := clock_op    (mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when PRTAD => mgr := clock_prtad (mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when DEVAD => mgr := clock_devad (mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when TA    => mgr := clock_ta    (mgr, start, di, op_code, port_addr, device_addr, wdata);
-      when DATA  => mgr := clock_data  (mgr, start, di, op_code, port_addr, device_addr, wdata);
+      when IDLE  => mgr := clock_idle  (mgr, start, op_code, port_addr, device_addr, wdata);
+      when PRE   => mgr := clock_pre   (mgr);
+      when ST    => mgr := clock_st    (mgr, op_code);
+      when OP    => mgr := clock_op    (mgr, op_code, port_addr);
+      when PRTAD => mgr := clock_prtad (mgr, port_addr, device_addr);
+      when DEVAD => mgr := clock_devad (mgr, op_code, device_addr);
+      when TA    => mgr := clock_ta    (mgr, wdata);
+      when DATA  => mgr := clock_data  (mgr, di, op_code, wdata);
       when others => report "unimplemented state " & state_t'image(mgr.state) severity failure;
     end case;
 
