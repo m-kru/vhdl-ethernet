@@ -170,7 +170,7 @@ package body mdio is
 
 
   function clock_pre (
-    manager : manager_t;
+    manager : manager_t
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -195,7 +195,7 @@ package body mdio is
 
   function clock_st (
     manager : manager_t;
-    op_code : std_logic_vector(1 downto 0);
+    op_code : std_logic_vector(1 downto 0)
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -223,7 +223,7 @@ package body mdio is
   function clock_op (
     manager   : manager_t;
     op_code   : std_logic_vector(1 downto 0);
-    port_addr : std_logic_vector(4 downto 0);
+    port_addr : std_logic_vector(4 downto 0)
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -252,7 +252,7 @@ package body mdio is
   function clock_prtad (
     manager     : manager_t;
     port_addr   : std_logic_vector(4 downto 0);
-    device_addr : std_logic_vector(4 downto 0);
+    device_addr : std_logic_vector(4 downto 0)
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin
@@ -279,7 +279,7 @@ package body mdio is
   function clock_devad (
     manager     : manager_t;
     op_code     : std_logic_vector(1 downto 0);
-    device_addr : std_logic_vector(4 downto 0);
+    device_addr : std_logic_vector(4 downto 0)
   ) return manager_t is
     variable mgr : manager_t := manager;
   begin

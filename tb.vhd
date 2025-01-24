@@ -1,8 +1,8 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
-library mdio;
-  use mdio.mdio;
+library lmdio;
+  use lmdio.mdio;
 
 
 entity tb is
