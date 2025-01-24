@@ -70,7 +70,7 @@ package mdio is
     -- Output elements
     ready       : std_logic; -- Asserted when manager is ready to carry out a transaction
     mdc         : std_logic; -- MDIO clock
-    do          : std_logic; -- MDIO serial data output to PHY
+    mdo         : std_logic; -- MDIO serial data output to PHY
     serial_dir  : std_logic; -- Direction of serial data, '0': Manager -> PHY, '1': Manager <- PHY
     rdata       : std_logic_vector(15 downto 0); -- MDIO read data
     rdata_valid : std_logic; -- Asserted for one cycle when read data becomes valid
@@ -117,7 +117,7 @@ package body mdio is
       PREAMBLE_LENGTH => PREAMBLE_LENGTH,
       ready       => '1',
       mdc         => '0',
-      do          => '1',
+      mdo         => '1',
       serial_dir  => '0',
       rdata       => b"0000000000000000",
       rdata_valid => '0',
@@ -153,7 +153,7 @@ package body mdio is
       else
         mgr.cnt := 3;
         mgr.subcnt := 1;
-        mgr.do := '0';
+        mgr.mdo := '0';
         mgr.state := ST;
       end if;
 
@@ -184,7 +184,7 @@ package body mdio is
           mgr.cnt := mgr.cnt - 1;
         else
           mgr.cnt := 3;
-          mgr.do := '0';
+          mgr.mdo := '0';
           mgr.state := ST;
         end if;
     end if;
@@ -203,14 +203,14 @@ package body mdio is
       mgr.mdc := '1';
       mgr.cnt := 2;
     elsif mgr.cnt = 2 then
-      mgr.do := '1';
+      mgr.mdo := '1';
       mgr.mdc := '0';
       mgr.cnt := 1;
     elsif mgr.cnt = 1 then
       mgr.mdc := '1';
       mgr.cnt := 0;
     elsif mgr.cnt = 0 then
-      mgr.do := op_code(1);
+      mgr.mdo := op_code(1);
       mgr.cnt := 3;
       mgr.mdc := '0';
       mgr.state := OP;
@@ -231,14 +231,14 @@ package body mdio is
       mgr.mdc := '1';
       mgr.cnt := 2;
     elsif mgr.cnt = 2 then
-      mgr.do := op_code(0);
+      mgr.mdo := op_code(0);
       mgr.mdc := '0';
       mgr.cnt := 1;
     elsif mgr.cnt = 1 then
       mgr.mdc := '1';
       mgr.cnt := 0;
     elsif mgr.cnt = 0 then
-      mgr.do := port_addr(4);
+      mgr.mdo := port_addr(4);
       mgr.cnt := 4;
       mgr.subcnt := 1;
       mgr.mdc := '0';
@@ -264,10 +264,10 @@ package body mdio is
         mgr.subcnt := 1;
         if mgr.cnt > 0 then
           mgr.cnt := mgr.cnt - 1;
-          mgr.do := port_addr(mgr.cnt);
+          mgr.mdo := port_addr(mgr.cnt);
         else
           mgr.cnt := 4;
-          mgr.do := device_addr(4);
+          mgr.mdo := device_addr(4);
           mgr.state := DEVAD;
         end if;
     end if;
@@ -291,11 +291,11 @@ package body mdio is
         mgr.subcnt := 1;
         if mgr.cnt > 0 then
           mgr.cnt := mgr.cnt - 1;
-          mgr.do := device_addr(mgr.cnt);
+          mgr.mdo := device_addr(mgr.cnt);
         else
           mgr.cnt := 3;
 
-          mgr.do := '1';
+          mgr.mdo := '1';
           if op_code = READ or op_code = READ_INC then
             mgr.serial_dir := '1';
           end if;
@@ -318,14 +318,14 @@ package body mdio is
       mgr.mdc := '1';
       mgr.cnt := 2;
     elsif mgr.cnt = 2 then
-      mgr.do := '0';
+      mgr.mdo := '0';
       mgr.mdc := '0';
       mgr.cnt := 1;
     elsif mgr.cnt = 1 then
       mgr.mdc := '1';
       mgr.cnt := 0;
     elsif mgr.cnt = 0 then
-      mgr.do := wdata(15);
+      mgr.mdo := wdata(15);
       mgr.cnt := 15;
       mgr.mdc := '0';
       mgr.state := DATA;
@@ -352,7 +352,7 @@ package body mdio is
       mgr.mdc := '0';
       if mgr.cnt > 0 then
         mgr.cnt := mgr.cnt - 1;
-        mgr.do := wdata(mgr.cnt);
+        mgr.mdo := wdata(mgr.cnt);
       elsif mgr.cnt = 0 then
         if op_code = READ or op_code = READ_INC then
           mgr.rdata_valid := '1';

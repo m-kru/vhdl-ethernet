@@ -85,8 +85,8 @@ begin
 
     -- Check signal values during the preamble
     for i in 1 to 2 * mdio.PREAMBLE_LENGTH - 1 loop
-      assert mgr.do = '1'
-        report "do must equal '1' during the preamble, current value " & mgr.do'image
+      assert mgr.mdo = '1'
+        report "mdo must equal '1' during the preamble, current value " & mgr.mdo'image
         severity failure;
 
       assert mgr.serial_dir = '0'
@@ -97,30 +97,30 @@ begin
     end loop;
 
     -- Check start of frame pattern
-    assert mgr.do = '0'
-      report "first bit of start of frame must equal '0', current value " & mgr.do'image
+    assert mgr.mdo = '0'
+      report "first bit of start of frame must equal '0', current value " & mgr.mdo'image
       severity failure;
     wait for 2 * CLK_PERIOD;
-    assert mgr.do = '1'
-      report "second bit of start of frame must equal '1', current value " & mgr.do'image
+    assert mgr.mdo = '1'
+      report "second bit of start of frame must equal '1', current value " & mgr.mdo'image
       severity failure;
     wait for 2 * CLK_PERIOD;
 
     -- Check operation code
-    assert mgr.do = MDIO.READ_INC(1)
-      report "first bit of op code must equal '1', current value " & mgr.do'image
+    assert mgr.mdo = MDIO.READ_INC(1)
+      report "first bit of op code must equal '1', current value " & mgr.mdo'image
       severity failure;
     wait for 2 * CLK_PERIOD;
-    assert mgr.do = MDIO.READ_INC(0)
-      report "second bit of op code must equal '0', current value " & mgr.do'image
+    assert mgr.mdo = MDIO.READ_INC(0)
+      report "second bit of op code must equal '0', current value " & mgr.mdo'image
       severity failure;
     wait for 2 * CLK_PERIOD;
 
     -- Check port address
     for i in 4 downto 0 loop
-      assert mgr.do = PORT_ADDR(i)
+      assert mgr.mdo = PORT_ADDR(i)
         report "invalid port address bit " & i'image &
-          ": got " & mgr.do'image &
+          ": got " & mgr.mdo'image &
           ", want " & PORT_ADDR(i)'image
         severity failure;
       wait for 2 * CLK_PERIOD;
@@ -128,29 +128,29 @@ begin
 
     -- Check device address
     for i in 4 downto 0 loop
-      assert mgr.do = DEVICE_ADDR(i)
+      assert mgr.mdo = DEVICE_ADDR(i)
         report "invalid device address bit " & i'image &
-          ": got " & mgr.do'image &
+          ": got " & mgr.mdo'image &
           ", want " & DEVICE_ADDR(i)'image
         severity failure;
       wait for 2 * CLK_PERIOD;
     end loop;
 
     -- Check turnaround
-    assert mgr.do = '1'
-      report "first bit of turnaround must equal '1', current value " & mgr.do'image
+    assert mgr.mdo = '1'
+      report "first bit of turnaround must equal '1', current value " & mgr.mdo'image
       severity failure;
     wait for 2 * CLK_PERIOD;
-    assert mgr.do = '0'
-      report "second bit of turnaround must equal '0', current value " & mgr.do'image
+    assert mgr.mdo = '0'
+      report "second bit of turnaround must equal '0', current value " & mgr.mdo'image
       severity failure;
     wait for 2 * CLK_PERIOD;
 
     -- Check write data
     for i in 15 downto 0 loop
-      assert mgr.do = WDATA(i)
+      assert mgr.mdo = WDATA(i)
         report "invalid wdata bit " & i'image &
-          ": got " & mgr.do'image &
+          ": got " & mgr.mdo'image &
           ", want " & WDATA(i)'image
         severity failure;
       wait for 2 * CLK_PERIOD;
