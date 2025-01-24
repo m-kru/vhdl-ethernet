@@ -159,10 +159,10 @@ package body mdio is
       end if;
 
       report mgr.REPORT_PREFIX & "starting transaction, " &
-        "op_code => " & op_code'image & ", " &
-        "port_addr => " & port_addr'image & ", " &
-        "device_addr => " & device_addr'image & ", " &
-        "wdata => " & wdata'image
+        "op_code => " & to_string(op_code) & ", " &
+        "port_addr => " & to_string(port_addr) & ", " &
+        "device_addr => " & to_string(device_addr) & ", " &
+        "wdata => " & to_string(wdata)
         severity note;
     end if;
 
