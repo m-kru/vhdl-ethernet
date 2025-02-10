@@ -81,7 +81,7 @@ package mdio is
     read   : boolean; -- True if current operation is one of read operations
   end record;
 
-  -- Initialies manager.
+  -- Initializes manager.
   --
   -- Only configuration elements can be set.
   -- There is no need to initialize output or internal elements to custom values.
@@ -105,6 +105,7 @@ package mdio is
   ) return manager_t;
 
 end package;
+
 
 package body mdio is
 

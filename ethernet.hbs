@@ -34,11 +34,23 @@ namespace eval vhdl::ethernet {
     # GMII Tx path tester
     namespace eval gmii-tx-tester {
       proc src {} {
+        hbs::AddDep vhdl::ethernet::crc::src
+
         hbs::SetLib "ethernet"
         hbs::AddFile gmii-tx-tester.vhd
       }
 
+      proc tb {} {
+        hbs::SetTool "nvc"
+        hbs::AddPostElabCb hbs::SetArgsPrefix "--messages=compact"
+        src
+    
+        hbs::SetLib ""
+        hbs::AddFile tb/tb-gmii-tx-tester.vhd
+        hbs::SetTop "tb_gmii_tx_tester"
+        hbs::Run
+      }
+    
       hbs::Register
     }
-
 }
