@@ -86,7 +86,7 @@ package mdio is
   -- Only configuration elements can be set.
   -- There is no need to initialize output or internal elements to custom values.
   function init (
-    REPORT_PREFIX   : string := "mdio: manager: ";
+    REPORT_PREFIX   : string := "ethernet: mdio manager: ";
     PREAMBLE_LENGTH : natural := PREAMBLE_LENGTH
   ) return manager_t;
 
