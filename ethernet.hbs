@@ -1,0 +1,23 @@
+namespace eval vhdl::ethernet {
+
+    # Management Data Input/Output Station Manager
+    namespace eval mdio {
+      proc src {} {
+        hbs::SetLib "ethernet"
+        hbs::AddFile mdio.vhd
+      }
+    
+      proc tb {} {
+        hbs::SetTool "nvc"
+        hbs::AddPostElabCb hbs::SetArgsPrefix "--messages=compact"
+        src
+    
+        hbs::SetLib ""
+        hbs::AddFile tb/tb-mdio.vhd
+        hbs::SetTop "tb_mdio"
+        hbs::Run
+      }
+    
+      hbs::Register
+    }
+}

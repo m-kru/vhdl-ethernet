@@ -1,15 +1,15 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
-library lmdio;
-  use lmdio.mdio;
+library ethernet;
+  use ethernet.mdio;
 
 
-entity tb is
+entity tb_mdio is
 end entity;
 
 
-architecture test of tb is
+architecture test of tb_mdio is
 
   constant CLK_PERIOD : time := 10 ns;
   signal clk : std_logic := '0';
