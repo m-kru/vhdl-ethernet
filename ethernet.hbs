@@ -1,5 +1,15 @@
 namespace eval vhdl::ethernet {
 
+    # Package with CRCs used in Ethernet.
+    namespace eval crc {
+      proc src {} {
+        hbs::SetLib "ethernet"
+        hbs::AddFile crc.vhd
+      }
+    
+      hbs::Register
+    }
+
     # Management Data Input/Output Station Manager
     namespace eval mdio {
       proc src {} {
@@ -20,4 +30,15 @@ namespace eval vhdl::ethernet {
     
       hbs::Register
     }
+
+    # GMII Tx path tester
+    namespace eval gmii-tx-tester {
+      proc src {} {
+        hbs::SetLib "ethernet"
+        hbs::AddFile gmii-tx-tester.vhd
+      }
+
+      hbs::Register
+    }
+
 }
