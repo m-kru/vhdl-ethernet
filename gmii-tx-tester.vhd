@@ -17,7 +17,7 @@ package gmii_tx_tester is
   -- 
   -- The module transmits a frame every about one second.
   -- The destination and source MAC addresses are configurable.
-  -- However, the frame data content is fixed to "Hello from GMII!" string. 
+  -- However, the frame data content is fixed to "Hello GMII!" string. 
   --
   -- The ether type is fixed to the 0x88B5 (IEEE 802.1 Local Experimental Ethertype 1).
   type gmii_tx_tester_t is record
@@ -95,7 +95,7 @@ package body gmii_tx_tester is
     if gtt.cnt = 0 then
       gtt.tx_en := '1';
       gtt.tx_er := '0';
-      gtt.txd := x"AA";
+      gtt.txd := x"55";
 
       gtt.cnt := 5;
       gtt.state := PREAMBLE;
@@ -240,21 +240,24 @@ package body gmii_tx_tester is
   function clock_fcs (
     gmii_tx_tester : gmii_tx_tester_t
   ) return gmii_tx_tester_t is
-    variable gtt : gmii_tx_tester_t := gmii_tx_tester; 
+    variable gtt : gmii_tx_tester_t := gmii_tx_tester;
+
+    -- Reverses order of bits in a byte.
+    function rev(d : in std_logic_vector(7 downto 0)) return std_logic_vector is
+      variable r : std_logic_vector(7 downto 0);
+    begin
+      for i in 0 to 7 loop r(i) := d(7-i); end loop;
+      return r;
+    end;
+
   begin
-    if gtt.cnt = 3 then
-      gtt.txd := gtt.crc(7 downto 0);
-      gtt.cnt := 2;
-    elsif gtt.cnt = 2 then
-      gtt.txd := gtt.crc(15 downto 8);
-      gtt.cnt := 1;
-    elsif gtt.cnt = 1 then
-      gtt.txd := gtt.crc(23 downto 16);
-      gtt.cnt := 0;
-    else
-      gtt.txd := gtt.crc(31 downto 24);
+    gtt.txd := not rev(gtt.crc(7 + gtt.cnt * 8 downto gtt.cnt * 8));
+
+    if gtt.cnt = 0 then
       gtt.cnt := 125_000_000;
       gtt.state := IDLE;
+    else
+      gtt.cnt := gtt.cnt - 1;
     end if;
 
     return gtt;

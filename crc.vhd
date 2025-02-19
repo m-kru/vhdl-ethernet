@@ -27,8 +27,9 @@ package body crc is
     variable c, n : std_logic_vector(31 downto 0);
     variable d    : std_logic_vector(7 downto 0);
   begin
-    c     := crc;
-    d     := din;
+    c := crc;
+    d := din;
+
     n(0)  := c(24) xor c(30) xor d(1) xor d(7);
     n(1)  := c(24) xor c(25) xor c(30) xor c(31) xor d(0) xor d(1) xor d(6) xor d(7);
     n(2)  := c(24) xor c(25) xor c(26) xor c(30) xor c(31) xor d(0) xor d(1) xor d(5) xor d(6) xor d(7);
@@ -61,6 +62,7 @@ package body crc is
     n(29) := c(21) xor c(27) xor c(30) xor c(31) xor d(0) xor d(1) xor d(4);
     n(30) := c(22) xor c(28) xor c(31) xor d(0) xor d(3);
     n(31) := c(23) xor c(29) xor d(2);
+
     return n;
   end function;
 

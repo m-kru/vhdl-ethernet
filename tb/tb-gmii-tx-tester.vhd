@@ -16,12 +16,12 @@ architecture test of tb_gmii_tx_tester is
 
   signal gtt : gmii_tx_tester_t := init(cnt => 10);
 
-  constant DST_MAC : std_logic_vector(47 downto 0) := x"AA0102030405";
-  constant SRC_MAC : std_logic_vector(47 downto 0) := x"B028AC1893BA";
+  constant DST_MAC : std_logic_vector(47 downto 0) := x"AABBCCDDEEFF";
+  constant SRC_MAC : std_logic_vector(47 downto 0) := x"112233445566";
 
   constant WANT_PAYLOAD : std_logic_vector(87 downto 0) := x"48656C6C6F20474D494921";
 
-  constant WANT_CRC : std_logic_vector(31 downto 0) := x"EEBB34F1";
+  constant WANT_CRC : std_logic_vector(31 downto 0) := x"12BAF15B";
 
 begin
 
@@ -46,7 +46,7 @@ begin
     -- Check preamle
     for i in 0 to 6 loop
       wait for CLK_PERIOD;
-      assert gtt.txd = x"AA"
+      assert gtt.txd = x"55"
         report "invalid preamble data, got: x""" & to_hstring(gtt.txd) & """, want: x""AA"""
         severity failure;
     end loop;
@@ -103,7 +103,7 @@ begin
     end loop;
 
     -- Check CRC
-    for i in 0 to 3 loop
+    for i in 3 downto 0 loop
       wait for CLK_PERIOD;
       crc(7 + i * 8 downto i * 8) := gtt.txd;
     end loop;
