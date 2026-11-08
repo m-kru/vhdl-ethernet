@@ -110,7 +110,7 @@ end package;
 package body mdio is
 
   function init (
-    REPORT_PREFIX   : string := "mdio: manager: ";
+    REPORT_PREFIX   : string := "ethernet: mdio manager: ";
     PREAMBLE_LENGTH : natural := PREAMBLE_LENGTH
   ) return manager_t is
     constant mgr : manager_t := (
