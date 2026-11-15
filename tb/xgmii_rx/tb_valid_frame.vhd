@@ -16,14 +16,14 @@ end entity;
 
 architecture test of tb_valid_frame is
 
-  constant CLK_PERIOD : time := 8 ns;
+  constant CLK_PERIOD : time := 3.2 ns;
   signal clk : std_logic := '0';
 
   signal arst : std_logic := '0';
   signal rxd : std_logic_vector(31 downto 0) := x"07070707";
   signal rxc : std_logic_vector(3 downto 0) := "1111";
   signal frame_strm : stream32_t;
-  signal frame_strm_ck : checker_t := init("frame stream: ");
+  signal frame_strm_ck : checker_t := init;
 
   constant FRAME_SIZE : natural := 40;
   constant FRAME : data8_array_t(0 to FRAME_SIZE - 1) := (
