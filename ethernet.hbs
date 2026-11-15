@@ -56,24 +56,26 @@ namespace eval vhdl::ethernet {
       hbs::Register
     }
 
-  namespace eval xgmii-rx-frame-dispatcher {
+  namespace eval xgmii_rx_frame_extractor {
     set doc "32-bit XGMII receiver forwarding Ethernet frames, including FCS, to AXI Stream."
 
     proc src {} {
       hbs::AddDep vhdl::amba5::axi-stream::pkg::src
       hbs::SetStd 2008
       hbs::SetLib ""
-      hbs::AddFile xgmii_rx_frame_dispatcher.vhd
+      hbs::AddFile xgmii_rx_frame_extractor.vhd
     }
 
-    proc tb {} {
+    proc tb_valid_frame {} {
       hbs::SetTool "nvc"
 
+      hbs::AddDep vhdl::amba5::data::src
+      hbs::AddDep vhdl::amba5::axi-stream::buffer_receiver::src
       hbs::AddDep vhdl::amba5::axi-stream::checker::src
 
       src
-      hbs::SetTop "tb"
-      hbs::AddFile tb/xgmii_rx_frame_dispatcher/tb.vhd
+      hbs::SetTop "tb_valid_frame"
+      hbs::AddFile tb/xgmii_rx_frame_extractor/tb_valid_frame.vhd
       hbs::Run
     }
 
