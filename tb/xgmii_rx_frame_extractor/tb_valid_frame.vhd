@@ -36,6 +36,7 @@ architecture test of tb_valid_frame is
   signal buf_rcv : buffer_receiver_t(buf(0 to FRAME_SIZE-1)) := init(buf_len => FRAME_SIZE);
 
   signal strm_last_cnt : natural := 0;
+  signal last_keep : std_logic_vector(3 downto 0);
 
 begin
 
@@ -82,11 +83,22 @@ begin
   end process;
 
 
+  user_checker : process (clk)
+  begin
+    if rising_edge(clk) then
+      assert (or frame_strm.user) /= '1'
+        report "unexpected user bits: 0x" & to_hstring(frame_strm.user)
+        severity failure;
+    end if;
+  end process;
+
+
   stream_last_counter : process (clk)
   begin
     if rising_edge(clk) then
       if frame_strm.last = '1' then
         strm_last_cnt <= strm_last_cnt + 1;
+        last_keep <= frame_strm.keep;
       end if;
     end if;
   end process;
@@ -146,6 +158,10 @@ begin
     send_frame(clk, FRAME);
     wait for CLK_PERIOD;
 
+    --
+    -- Check frame with empty last transfer
+    --
+
     assert buf_rcv.buf = FRAME
       report "got: " & LF & to_string(buf_rcv.buf) & LF & "want:" & LF & to_string(FRAME)
       severity failure;
@@ -156,6 +172,36 @@ begin
 
     assert strm_last_cnt = 1
       report "strm_last_cnt = " & to_string(strm_last_cnt)
+      severity failure;
+
+    assert last_keep = "0000"
+      report "expected an empty last transfer, keep=0x" & to_hstring(last_keep)
+      severity failure;
+
+    --
+    -- Check frame with non-empty last transfer
+    -- Send 39 bytes so that the last transfer contains three frame bytes.
+    -- Start from offset so there is no need to clear the rceiver buffer.
+    --
+
+    send_frame(clk, FRAME(1 to FRAME_SIZE - 1));
+    wait for CLK_PERIOD;
+
+    assert buf_rcv.buf(0 to FRAME_SIZE - 2) = FRAME(1 to FRAME_SIZE - 1)
+      report "got: " & LF & to_string(buf_rcv.buf(0 to FRAME_SIZE - 2)) & LF &
+        "want:" & LF & to_string(FRAME(1 to FRAME_SIZE - 1))
+      severity failure;
+
+    assert buf_rcv.transfers = 10
+      report "transfers = " & to_string(buf_rcv.transfers)
+      severity failure;
+
+    assert strm_last_cnt = 2
+      report "strm_last_cnt = " & to_string(strm_last_cnt)
+      severity failure;
+
+    assert last_keep = "0111"
+      report "expected three bytes in the last transfer, keep=0x" & to_hstring(last_keep)
       severity failure;
 
     wait for 2 * CLK_PERIOD;
