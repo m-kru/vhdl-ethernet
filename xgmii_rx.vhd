@@ -4,11 +4,13 @@ library ieee;
 library amba5_axi_stream;
   use amba5_axi_stream.axi_stream;
 
--- The xgmii_rx_frame_extractor is a simple entity allowing receiving Ethernet frames via XGMII interface.
+-- The xgmii_rx allows receiving Ethernet frames via XGMII interface.
 -- The entity works with 32-bit wide XGMII interface described in the IEEE Std 802.3-2022.
+-- Currently no extra error detection is supported.
 --
--- The entity does not calculate the FCS (Frame Check Sequence).
+-- The entity does not calculate the FCS (Frame Check Sequence), and never will.
 -- It simply treats FCS as part of the frame.
+-- Calculate and check FCS in the next stage of your processing pipeline.
 --
 -- The Start character, six 0x55 preamble bytes, SFD (0xD5), and Terminate (/T/) character are removed.
 -- AXI-Stream keep and strb mark the frame bytes in each transfer.
@@ -20,10 +22,10 @@ library amba5_axi_stream;
 -- with user(i) asserted on its last transfer. For example, if unexpected control
 -- character was placed on position 2 (23 downto 16), then user(2) = '1'.
 --
--- No frame length or FCS checks are performed.
+-- No frame length check is performed.
 -- Other user bits, id, and dest are zero; wakeup is always high.
 -- The receiver must accept every valid transfer.
-entity xgmii_rx_frame_extractor is
+entity xgmii_rx is
   port (
     arst_i : in std_logic;
 
@@ -38,7 +40,7 @@ entity xgmii_rx_frame_extractor is
 end entity;
 
 
-architecture rtl of xgmii_rx_frame_extractor is
+architecture rtl of xgmii_rx is
 
   type state_t is (idle, preamble, frame);
   signal state : state_t := idle;

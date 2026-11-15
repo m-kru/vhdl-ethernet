@@ -43,7 +43,7 @@ begin
   clk <= not clk after CLK_PERIOD / 2;
 
 
-  dut  : entity work.xgmii_rx_frame_extractor
+  dut  : entity work.xgmii_rx
   port map (
     arst_i   => arst,
     rx_clk_i => clk,
