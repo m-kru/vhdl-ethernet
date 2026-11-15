@@ -1,9 +1,18 @@
 namespace eval vhdl::ethernet {
+    namespace eval pkg {
+      proc src {} {
+        hbs::AddDep vhdl::amba5::data::src
+        hbs::SetLib "lethernet"
+        hbs::AddFile ethernet.vhd
+      }
+
+      hbs::Register
+    }
 
     # Package with CRCs used in Ethernet.
     namespace eval crc {
       proc src {} {
-        hbs::SetLib "ethernet"
+        hbs::SetLib "lethernet"
         hbs::AddFile crc.vhd
       }
 
@@ -13,7 +22,7 @@ namespace eval vhdl::ethernet {
     # Management Data Input/Output Station Manager
     namespace eval mdio {
       proc src {} {
-        hbs::SetLib "ethernet"
+        hbs::SetLib "lethernet"
         hbs::SetStd 2019
         hbs::AddFile mdio.vhd
       }
@@ -37,7 +46,7 @@ namespace eval vhdl::ethernet {
       proc src {} {
         hbs::AddDep vhdl::ethernet::crc::src
 
-        hbs::SetLib "ethernet"
+        hbs::SetLib "lethernet"
         hbs::SetStd 2019
         hbs::AddFile gmii_tx_tester.vhd
       }
@@ -69,7 +78,7 @@ namespace eval vhdl::ethernet {
     proc tb_valid_frame {} {
       hbs::SetTool "nvc"
 
-      hbs::AddDep vhdl::amba5::data::src
+      hbs::AddDep vhdl::ethernet::pkg::src
       hbs::AddDep vhdl::amba5::axi-stream::buffer_receiver::src
       hbs::AddDep vhdl::amba5::axi-stream::checker::src
 

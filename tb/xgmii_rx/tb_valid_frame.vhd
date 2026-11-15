@@ -5,6 +5,9 @@ library ieee;
 library amba5;
   use amba5.data.all;
 
+library lethernet;
+  use lethernet.ethernet.all;
+
 library amba5_axi_stream;
   use amba5_axi_stream.axi_stream.all;
   use amba5_axi_stream.axi_stream."=";
@@ -25,15 +28,7 @@ architecture test of tb_valid_frame is
   signal frame_strm : stream32_t;
   signal frame_strm_ck : checker_t := init;
 
-  constant FRAME_SIZE : natural := 40;
-  constant FRAME : data8_array_t(0 to FRAME_SIZE - 1) := (
-    x"40", x"89", x"FE", x"BB", x"1A", x"97", x"12", x"43", x"BC", x"1F",
-    x"41", x"19", x"F5", x"89", x"1F", x"97", x"14", x"43", x"BC", x"2F",
-    x"42", x"09", x"F6", x"DD", x"1B", x"67", x"72", x"43", x"BC", x"3F",
-    x"43", x"39", x"F8", x"aC", x"1D", x"97", x"88", x"43", x"BC", x"4F"
-  );
-
-  signal buf_rcv : buffer_receiver_t(buf(0 to FRAME_SIZE-1)) := init(buf_len => FRAME_SIZE);
+  signal buf_rcv : buffer_receiver_t(buf(0 to MIN_FRAME_SIZE-1)) := init(buf_len => MIN_FRAME_SIZE);
 
   signal strm_last_cnt : natural := 0;
   signal last_keep : std_logic_vector(3 downto 0);
@@ -155,18 +150,18 @@ begin
   begin
     wait for 2 * CLK_PERIOD;
 
-    send_frame(clk, FRAME);
+    send_frame(clk, MIN_SIZE_FRAME_TB);
     wait for CLK_PERIOD;
 
     --
     -- Check frame with empty last transfer
     --
 
-    assert buf_rcv.buf = FRAME
-      report "got: " & LF & to_string(buf_rcv.buf) & LF & "want:" & LF & to_string(FRAME)
+    assert buf_rcv.buf = MIN_SIZE_FRAME_TB
+      report "got: " & LF & to_string(buf_rcv.buf) & LF & "want:" & LF & to_string(MIN_SIZE_FRAME_TB)
       severity failure;
 
-    assert buf_rcv.transfers = 11
+    assert buf_rcv.transfers = MIN_FRAME_SIZE / 4 + 1
       report "transfers = " & to_string(buf_rcv.transfers)
       severity failure;
 
@@ -180,19 +175,19 @@ begin
 
     --
     -- Check frame with non-empty last transfer
-    -- Send 39 bytes so that the last transfer contains three frame bytes.
-    -- Start from offset so there is no need to clear the rceiver buffer.
+    -- Send all but the first byte so that the last transfer contains three frame bytes.
+    -- Start from offset so there is no need to clear the receiver buffer.
     --
 
-    send_frame(clk, FRAME(1 to FRAME_SIZE - 1));
+    send_frame(clk, MIN_SIZE_FRAME_TB(1 to MIN_FRAME_SIZE - 1));
     wait for CLK_PERIOD;
 
-    assert buf_rcv.buf(0 to FRAME_SIZE - 2) = FRAME(1 to FRAME_SIZE - 1)
-      report "got: " & LF & to_string(buf_rcv.buf(0 to FRAME_SIZE - 2)) & LF &
-        "want:" & LF & to_string(FRAME(1 to FRAME_SIZE - 1))
+    assert buf_rcv.buf(0 to MIN_FRAME_SIZE - 2) = MIN_SIZE_FRAME_TB(1 to MIN_FRAME_SIZE - 1)
+      report "got: " & LF & to_string(buf_rcv.buf(0 to MIN_FRAME_SIZE - 2)) & LF &
+        "want:" & LF & to_string(MIN_SIZE_FRAME_TB(1 to MIN_FRAME_SIZE - 1))
       severity failure;
 
-    assert buf_rcv.transfers = 10
+    assert buf_rcv.transfers = MIN_FRAME_SIZE / 4
       report "transfers = " & to_string(buf_rcv.transfers)
       severity failure;
 

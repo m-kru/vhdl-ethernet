@@ -1,8 +1,8 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
-library ethernet;
-  use ethernet.gmii_tx_tester.all;
+library lethernet;
+  use lethernet.gmii_tx_tester.all;
 
 
 entity tb_gmii_tx_tester is

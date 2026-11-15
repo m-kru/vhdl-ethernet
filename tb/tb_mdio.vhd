@@ -1,8 +1,8 @@
 library ieee;
   use ieee.std_logic_1164.all;
 
-library ethernet;
-  use ethernet.mdio;
+library lethernet;
+  use lethernet.mdio;
 
 
 entity tb_mdio is
