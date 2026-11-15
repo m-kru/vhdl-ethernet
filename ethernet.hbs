@@ -70,7 +70,6 @@ namespace eval vhdl::ethernet {
 
     proc src {} {
       hbs::AddDep vhdl::amba5::axi-stream::pkg::src
-      hbs::SetStd 2008
       hbs::SetLib ""
       hbs::AddFile xgmii_rx.vhd
     }
@@ -85,6 +84,34 @@ namespace eval vhdl::ethernet {
       src
       hbs::SetTop "tb_valid_frame"
       hbs::AddFile tb/xgmii_rx/tb_valid_frame.vhd
+      hbs::Run
+    }
+
+    hbs::Register $doc
+  }
+
+  namespace eval xgmii_tx {
+    set doc "32-bit XGMII transmitter with AXI Stream input."
+
+    proc src {} {
+      hbs::AddDep vhdl::amba5::axi-stream::pkg::src
+      hbs::SetLib ""
+      hbs::AddFile xgmii_tx.vhd
+    }
+
+    proc tb_xgmii_loopback {} {
+      hbs::SetTool "nvc"
+
+      hbs::AddDep vhdl::ethernet::pkg::src
+      hbs::AddDep vhdl::ethernet::xgmii_rx::src
+
+      hbs::AddDep vhdl::amba5::axi-stream::bfm::src
+      hbs::AddDep vhdl::amba5::axi-stream::buffer_receiver::src
+      hbs::AddDep vhdl::amba5::axi-stream::checker::src
+
+      src
+      hbs::SetTop "tb_xgmii_loopback"
+      hbs::AddFile tb/tb_xgmii_loopback.vhd
       hbs::Run
     }
 
