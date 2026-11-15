@@ -10,7 +10,6 @@ library lethernet;
 
 library amba5_axi_stream;
   use amba5_axi_stream.axi_stream.all;
-  use amba5_axi_stream.axi_stream."=";
   use amba5_axi_stream.buffer_receiver.all;
   use amba5_axi_stream.checker.all;
 
@@ -38,7 +37,7 @@ begin
   clk <= not clk after CLK_PERIOD / 2;
 
 
-  dut  : entity work.xgmii_rx
+  dut : entity work.xgmii_rx
   port map (
     arst_i   => arst,
     rx_clk_i => clk,
