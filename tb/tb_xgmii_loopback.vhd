@@ -104,6 +104,11 @@ begin
 
     bfm.transmit(MIN_SIZE_FRAME_TB, tx_strm, ready, clk);
 
+    -- Transmission returns when the input has been consumed. Wait for the
+    -- transmitter pipeline, receiver, and buffer receiver to finish too.
+    wait until rising_edge(clk) and rx_strm.valid = '1' and rx_strm.last = '1';
+    wait until falling_edge(clk);
+
     assert buf_rcv.buf = MIN_SIZE_FRAME_TB
       report "got: " & LF & to_string(buf_rcv.buf) & LF & "want:" & LF & to_string(MIN_SIZE_FRAME_TB)
       severity failure;
@@ -114,6 +119,13 @@ begin
 
     wait for 2 * CLK_PERIOD;
     std.env.finish;
+  end process;
+
+
+  watchdog : process
+  begin
+    wait for 1 ms;
+    assert false report "testbench timed out" severity failure;
   end process;
 
 end architecture;
